@@ -10,7 +10,7 @@ DAYS = 7
 SEPERATOR = "|"
 DATES = False
 
-users = ['omnipresent07']#['omnipresent07','barakstout','PatrickHSI']
+users = ['barakstout']
 pushEventVars = ["size","distinct_size"]
 pullRequestEventActions = ["open","edited","closed","reopened","merged"]
 issuesEventActions = ["opened","edited","closed","reopened"]
