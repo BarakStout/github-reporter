@@ -6,11 +6,11 @@ from dateutil.relativedelta import *
 from dateutil.parser import *
 from datetime import *
 
-DAYS = 7
+MINDAYS = 0
+MAXDAYS = 7
 SEPERATOR = "|"
 DATES = False
 
-users = ['barakstout']
 pushEventVars = ["size","distinct_size"]
 pullRequestEventActions = ["open","edited","closed","reopened","merged"]
 issuesEventActions = ["opened","edited","closed","reopened"]
@@ -76,48 +76,51 @@ for user in users:
             dt = parse(item["created_at"]).replace(tzinfo=None)
             now = dt.now().replace(tzinfo=None)
             rdelta = -1*relativedelta(dt, now).days
-            if(rdelta > DAYS):
+
+            if(rdelta > MAXDAYS):
                 done = True
                 break
-            try:
-                dict[item["type"]] += 1
-            except:
-                dict[item["type"]] = 1
 
-            if(item["type"] == "PushEvent"):
-                for i in pushEventVars:
-                    pushEventsDict[user] += item["payload"][i]
-            elif(item["type"] == "PullRequestEvent"):
-                if(item["payload"]["action"] in pullRequestEventActions):
-                    pullRequestEventDict[item["payload"]["action"]] += 1
-                    url = item["payload"]["pull_request"]["html_url"]
-                    counter(pullUrl,url)
-                    pullDate[url] = dt
-                    pullUrlTitle[url] = item["payload"]["pull_request"]['title']
-            elif(item["type"] == "IssuesEvent"):
-                if(item["payload"]["action"] in issuesEventActions):
-                    issuesEventDict[item["payload"]["action"]] += 1
-                    url = item["payload"]["issue"]["html_url"]
-                    counter(issueUrl,url)
-                    issueDate[url] = dt
-                    issueUrlTitle[url] =  item["payload"]["issue"]['title']
+            if(rdelta > MINDAYS):
+                try:
+                    dict[item["type"]] += 1
+                except:
+                    dict[item["type"]] = 1
 
-            else:
-                counter(otherEvents,item["type"])
+                if(item["type"] == "PushEvent"):
+                    for i in pushEventVars:
+                        pushEventsDict[user] += item["payload"][i]
+                elif(item["type"] == "PullRequestEvent"):
+                    if(item["payload"]["action"] in pullRequestEventActions):
+                        pullRequestEventDict[item["payload"]["action"]] += 1
+                        url = item["payload"]["pull_request"]["html_url"]
+                        counter(pullUrl,url)
+                        pullDate[url] = dt
+                        pullUrlTitle[url] = item["payload"]["pull_request"]['title']
+                elif(item["type"] == "IssuesEvent"):
+                    if(item["payload"]["action"] in issuesEventActions):
+                        issuesEventDict[item["payload"]["action"]] += 1
+                        url = item["payload"]["issue"]["html_url"]
+                        counter(issueUrl,url)
+                        issueDate[url] = dt
+                        issueUrlTitle[url] =  item["payload"]["issue"]['title']
+
+                else:
+                    counter(otherEvents,item["type"])
 
 print("Total records: ",count)
 
 print("Event Totals:\n==============")
 printDict(dict)
 
-print("PushEvent Totals\n==============")
-printDict(pushEventsDict)
-
-print("PullRequestEvent Totals\n==============")
-printDict(pullRequestEventDict)
-
-print("IssueEvent Totals\n==============")
-printDict(issuesEventDict)
+# print("PushEvent Totals\n==============")
+# printDict(pushEventsDict)
+#
+# print("PullRequestEvent Totals\n==============")
+# printDict(pullRequestEventDict)
+#
+# print("IssueEvent Totals\n==============")
+# printDict(issuesEventDict)
 
 print("Pulls URLs\n==============")
 if(DATES): printTripleDict(pullUrl,pullUrlTitle,pullDate)
@@ -127,8 +130,8 @@ print("Issues URLs\n==============")
 if(DATES): printTripleDict(issueUrl,issueUrlTitle,issueDate)
 else: printDoubleDict(issueUrl,issueUrlTitle)
 
-print("URL-METAs\n==============")
-printDict(urlMeta)
+# print("URL-METAs\n==============")
+# printDict(urlMeta)
 
 print("OtherEvent Totals\n==============")
 printDict(otherEvents)
